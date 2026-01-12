@@ -112,11 +112,11 @@ async def get_analysis_results(
 
 
 
-# @router.get("/tasks", response_model=Page[TaskOut])
-# async def list_tasks(
-#     page: int = 1,
-#     per_page: int = 20,
-#     db: Session = Depends(get_db)
-# ):
-#     q = db.query(Task)
-#     return paginate(q, page, per_page, out_model=TaskOut)
+@router.get("/tasks", response_model=Page[TaskOut])
+async def list_tasks(
+    page: int = 1,
+    per_page: int = 20,
+    db: Session = Depends(get_db)
+):
+    q = db.query(Task)
+    return paginate(q, page, per_page, out_model=TaskOut)

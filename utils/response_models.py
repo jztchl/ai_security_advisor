@@ -9,8 +9,6 @@ class TaskOut(BaseModel):
     id: str
     filename: str
     file_type: str
-    filepath: str
     status: TaskStatus
-    result: Optional[Any] = None
     created_at: datetime
     updated_at: datetime

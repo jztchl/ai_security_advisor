@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from apis.uploadfile import router as uploadfile_router
-from apis.status import router as status_router
+from apis.analyze_apis import router as analyze_router
 from db.database import engine,Base
 Base.metadata.create_all(bind=engine)
 app = FastAPI()
@@ -13,8 +12,7 @@ origins = [
     "http://localhost:5173"
 ]
 
-app.router.include_router(uploadfile_router)
-app.router.include_router(status_router)
+app.router.include_router(analyze_router)
 
 
 app.add_middleware(
