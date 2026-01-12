@@ -1,17 +1,12 @@
 from typing import Dict, Any
 import logging
-from config import settings
-from google import genai
-from google.api_core import exceptions as api_exceptions
-from google.genai.types import (
-    GenerateContentConfig,
-)
+import uuid
+from .gemini import gemini_generate_content
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-client=genai.Client(api_key=settings.GEMINI_API_KEY)
 
-async def analyze_code_security(code: str, language: str = "python") -> Dict[str, Any]:
+def analyze_code_security(code: str, language: str = "python",task_id:uuid.UUID = None,filepath:str = None,mode="gemini") -> Dict[str, Any]:
     """
     Analyze code for security vulnerabilities using Gemini AI
     """
@@ -26,14 +21,14 @@ async def analyze_code_security(code: str, language: str = "python") -> Dict[str
 
         Format your response as JSON with this structure:
         {{
-            "analysis_id": "generated-uuid",
+            "analysis_id": "{task_id}",
             "overall_severity": "High",
             "vulnerabilities": [
                 {{
                     "type": "SQL Injection",
                     "severity": "High",
                     "description": "Direct string concatenation in SQL query",
-                    "location": "file.py:42",
+                    "location": "{filepath}",
                     "fix": "Use parameterized queries",
                     "code_snippet": "query = f\\"SELECT * FROM users WHERE id = {code}\\""
                 }}
@@ -52,15 +47,17 @@ async def analyze_code_security(code: str, language: str = "python") -> Dict[str
         {code}
         ```
         """
+        if mode == "gemini":
+            response = gemini_generate_content(instruction, context)  
+            if not response:
+                logger.error("Failed to get response from Gemini")
+                return None
+        elif mode =="local":
+            # TODO: Implement local AI analysis
+            pass
 
+        return response
         
-        return client.models.generate_content(
-            model="gemini-2.5-flash-lite",
-            config=GenerateContentConfig(
-                system_instruction=instruction,
-            ),
-            contents=context,
-        )
-    except api_exceptions.GoogleAPICallError as e:
-        logger.error(f"Error calling Gemini: {e}")
+    except Exception as e:
+        logging.error(f"Error analyzing code: {e}")
         return None
