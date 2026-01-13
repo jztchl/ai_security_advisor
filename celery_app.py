@@ -21,6 +21,3 @@ celery_client.conf.update(
     include=["tasks.process_file"],
 )
 celery_client.autodiscover_tasks()
-import redis
-redis_client = redis.Redis.from_url(settings.REDIS_URL)
-redis_client.ping()
