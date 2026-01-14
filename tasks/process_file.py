@@ -2,6 +2,7 @@ from datetime import datetime
 import asyncio
 from typing import Dict, Any
 from core.ai import analyze_code_security
+from core.semgrep import run_semgrep
 import logging
 from db.models.tasks import Task
 from db.database import SessionLocal
@@ -28,8 +29,10 @@ def process_uploaded_file(task_id: str) -> dict:
  
         # loop = asyncio.new_event_loop()
         # asyncio.set_event_loop(loop)
+
         try:
-            analysis_result = analyze_code_security(code_content, language,task_id,filepath)
+            semgrep_result = run_semgrep(filepath)
+            analysis_result = analyze_code_security(code_content, language,task_id,filepath,semgrep_result)
             if analysis_result:
                 task.result = analysis_result
                 task.status = TaskStatus.COMPLETED

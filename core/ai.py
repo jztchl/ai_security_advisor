@@ -6,7 +6,13 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def analyze_code_security(code: str, language: str = "python",task_id:uuid.UUID = None,filepath:str = None,mode="gemini") -> Dict[str, Any]:
+def analyze_code_security(code: str, language: str = "python",task_id:uuid.UUID = None,
+filepath:str = None,semgrep_result=[],mode="gemini") -> Dict[str, Any]:
+
+    if semgrep_result:
+        semgrep_result_str = "\n".join(semgrep_result)
+    else:
+        semgrep_result_str = "not found"
     """
     Analyze code for security vulnerabilities using Gemini AI
     """
@@ -19,6 +25,9 @@ def analyze_code_security(code: str, language: str = "python",task_id:uuid.UUID 
         3. Recommended fixes
         4. Secure coding best practices
 
+        here is the semgrep result:
+        {semgrep_result_str}
+
         Format your response as JSON with this structure:
         {{
             "analysis_id": "{task_id}",
@@ -30,7 +39,7 @@ def analyze_code_security(code: str, language: str = "python",task_id:uuid.UUID 
                     "description": "Direct string concatenation in SQL query",
                     "location": "{filepath}",
                     "fix": "Use parameterized queries",
-                    "code_snippet": "query = f\\"SELECT * FROM users WHERE id = {code}\\""
+                    "code_snippet": " {code}"
                 }}
             ],
             "recommendations": [
@@ -46,6 +55,8 @@ def analyze_code_security(code: str, language: str = "python",task_id:uuid.UUID 
         ```
         {code}
         ```
+        please do not markdown text formating in response
+        do not mention semgrep in response only use it as a reference
         """
         if mode == "gemini":
             response = gemini_generate_content(instruction, context)  
