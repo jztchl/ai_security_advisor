@@ -10,7 +10,9 @@ from celery_app import celery_client
 logger = logging.getLogger(__name__)
 import json
 from db.models.tasks import TaskStatus
-
+import redis
+from config import settings
+r = redis.Redis.from_url(settings.REDIS_URL, decode_responses=True)
 @celery_client.task
 def process_uploaded_file(task_id: str) -> dict:
     db = SessionLocal()
@@ -36,21 +38,25 @@ def process_uploaded_file(task_id: str) -> dict:
             if analysis_result:
                 task.result = analysis_result
                 task.status = TaskStatus.COMPLETED
+                status = "completed"
                 
                 logger.info(f"Task {task_id} completed successfully")
+                status = "completed"
             else:
                 logger.error(f"Analysis result is empty for task {task_id}")
                 task.status = TaskStatus.FAILED
                 task.result = {}
+                status = "failed"
                 
             
         except Exception as e:
             logger.error(f"Error in AI analysis: {str(e)}")
             task.status = TaskStatus.FAILED
             task.result = {}
-            
+            status = "failed"            
         finally:
             db.commit()
+            r.set(f"task:{task_id}:status", status)
 
         return {
             "status": "completed",

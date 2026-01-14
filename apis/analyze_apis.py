@@ -61,13 +61,9 @@ async def analyze_file(
         db.refresh(task)
         try:
             process_uploaded_file.delay(str(task.id))
-            task_status = TaskStatus.PROCESSING
-            message = "File uploaded and analysis started"
         except Exception as e:
             logger.warning(f"Could not queue task (Redis not available): {e}")
-            task_status = "queued"
-            message = "File uploaded successfully (processing will start when Redis is available)"
-        
+            
         return {
             "status": "processing",
             "task_id": task.id,

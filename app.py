@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from apis.analyze_apis import router as analyze_router
+from apis.notification import router as notification_router
 from db.database import engine,Base
 Base.metadata.create_all(bind=engine)
 app = FastAPI()
@@ -13,7 +14,7 @@ origins = [
 ]
 
 app.router.include_router(analyze_router)
-
+app.router.include_router(notification_router)
 
 app.add_middleware(
     CORSMiddleware,

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-
+import { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 const API_BASE = "http://127.0.0.1:8000";
 
 export default function App() {
@@ -10,6 +11,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
 const [uploadSuccess, setUploadSuccess] = useState(false);
+const [listenTaskId, setListenTaskId] = useState(null);
 
 
   useEffect(() => {
@@ -17,6 +19,42 @@ const [uploadSuccess, setUploadSuccess] = useState(false);
       .then((r) => r.json())
       .then((d) => setTasks(d.items));
   }, []);
+
+useEffect(() => {
+  if (!listenTaskId) return;
+
+  const es = new EventSource(
+    `${API_BASE}/notification/tasks/${listenTaskId}`
+  );
+
+  es.addEventListener("completed", (e) => {
+    console.log("Completed:", e.data);
+    toast.success(`Task: ${listenTaskId} Analysis completed`,{
+  duration: 5000,
+});
+    es.close();
+    setListenTaskId(null);
+  });
+
+  es.addEventListener("failed", (e) => {
+    console.log("Failed:", e.data);
+    toast.error(`Task: ${listenTaskId} Analysis failed`,{
+      duration: 5000,
+    });
+    es.close();
+    setListenTaskId(null);
+  });
+
+  es.onerror = (err) => {
+    console.error("SSE error", err);
+    es.close();
+  };
+
+  return () => {
+    es.close(); // 🔥 critical cleanup
+  };
+}, [listenTaskId]);
+
 
 async function uploadFile() {
   if (!file || uploading) return;
@@ -40,7 +78,8 @@ async function uploadFile() {
     // Success
     setUploadSuccess(true);
     setFile(null);
-
+    const data = await res.json();
+    setListenTaskId(data.task_id);
     // Refresh tasks so the new one appears
     const tasksRes = await fetch(`${API_BASE}/analyze/tasks`);
     const tasksData = await tasksRes.json();
@@ -55,6 +94,10 @@ async function uploadFile() {
     setUploading(false);
   }
 }
+
+
+
+
 
   async function openTask(task) {
     setSelectedTask(task);
@@ -83,7 +126,8 @@ function formatDate(iso) {
 }
 
 
-  return (
+  return (<>
+   <Toaster position="top-right" />
     <div className="min-h-screen bg-[#101822] text-white flex flex-col font-[Space_Grotesk]">
       {/* TOP NAV */}
       <header className="h-16 px-8 flex items-center justify-between border-b border-[#233348]">
@@ -343,5 +387,6 @@ function formatDate(iso) {
         <span>v1.0.0</span>
       </footer>
     </div>
+    </>
   );
 }

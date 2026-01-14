@@ -14,7 +14,7 @@ client=genai.Client(api_key=settings.GEMINI_API_KEY)
 def gemini_generate_content(instruction: str, context: str) -> str:
     try:
         result= client.models.generate_content(
-            model="gemini-2.5-flash-lite",
+            model="gemini-2.5-flash",
             config=GenerateContentConfig(
                 system_instruction=instruction,
             ),
