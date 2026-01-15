@@ -38,6 +38,7 @@ async def analyze_file(
             '.rb': 'ruby'
         }
         file_extension = Path(file.filename).suffix.lower()
+        actual_file_name = Path(file.filename).name
         language = language_map.get(file_extension, 'text')
         
         # if file_extension not in allowed_extensions:
@@ -52,7 +53,7 @@ async def analyze_file(
             await f.write(await file.read())
 
         task = Task(
-            filename=filename,
+            filename=actual_file_name,
             filepath=filepath,
             file_type=language
         )
