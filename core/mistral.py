@@ -10,7 +10,7 @@ from utils.to_json import to_json
 def generate_content_mistral(instruction: str, context: str) -> str:
     try:
         content=instruction+"\n\n"+context
-        resposne=client.chat.complete(
+        response=client.chat.complete(
     model = model,
     messages = [
         {
@@ -19,7 +19,7 @@ def generate_content_mistral(instruction: str, context: str) -> str:
         },
     ]
 )
-        parsed_result = to_json(resposne.choices[0].message.content)
+        parsed_result = to_json(response.choices[0].message.content)
         return parsed_result
     except Exception as e:
         logger.error(f"Error generating content: {e}")
