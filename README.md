@@ -194,6 +194,7 @@ Key Python dependencies (see `requirements.txt`):
 * `aiofiles`
 * `semgrep`
 
+**Note:** Dependencies have been split into `requirements1.txt` and `requirements1.txt2.txt` to avoid dependency conflicts between OpenTelemetry packages and other libraries. Install both files sequentially.
 ---
 
 ## Configuration (.env)
