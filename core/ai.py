@@ -2,13 +2,15 @@ from typing import Dict, Any
 import logging
 import uuid
 from .gemini import gemini_generate_content
+from .mistral import generate_content_mistral
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 def analyze_code_security(code: str, language: str = "python",task_id:uuid.UUID = None,
-filepath:str = None,semgrep_result=[],mode="gemini") -> Dict[str, Any]:
+filepath:str = None,semgrep_result=[],mode=None) -> Dict[str, Any]:
 
+    model_providers={"gemini":gemini_generate_content,"mistral":generate_content_mistral}
     if semgrep_result:
         semgrep_result_str = "\n".join(semgrep_result)
     else:
@@ -28,6 +30,10 @@ filepath:str = None,semgrep_result=[],mode="gemini") -> Dict[str, Any]:
         here is the semgrep result:
         {semgrep_result_str}
 
+        
+        please do not markdown text formating in response
+        do not mention semgrep in response only use it as a reference
+
         Format your response as JSON with this structure:
         {{
             "analysis_id": "{task_id}",
@@ -39,7 +45,7 @@ filepath:str = None,semgrep_result=[],mode="gemini") -> Dict[str, Any]:
                     "description": "Direct string concatenation in SQL query",
                     "location": "{filepath}",
                     "fix": "Use parameterized queries",
-                    "code_snippet": " {code}"
+                    "code_snippet": "code"
                 }}
             ],
             "recommendations": [
@@ -55,17 +61,17 @@ filepath:str = None,semgrep_result=[],mode="gemini") -> Dict[str, Any]:
         ```
         {code}
         ```
-        please do not markdown text formating in response
-        do not mention semgrep in response only use it as a reference
         """
-        if mode == "gemini":
-            response = gemini_generate_content(instruction, context)  
-            if not response:
-                logger.error("Failed to get response from Gemini")
-                return None
-        elif mode =="local":
-            # TODO: Implement local AI analysis
-            pass
+        if not mode or mode not in model_providers:
+           for model in model_providers:
+            response=model_providers[model](instruction, context)
+            if response:
+                break
+        else:
+            response=model_providers[mode](instruction, context)
+        
+        if not response:
+            return None
 
         return response
         
