@@ -364,6 +364,34 @@ function formatDate(iso) {
       </div>
     </div>
 
+
+                  {/* VULNERABILITIES */}
+{/* VULNERABILITIES */}
+{Array.isArray(result.result.vulnerabilities) && result.result.vulnerabilities.length > 0 ? (
+  <div>
+    <h4 className="font-semibold mb-2">Vulnerabilities</h4>
+    <ul className="list-disc ml-5 space-y-2 text-sm text-slate-300">
+      {result.result.vulnerabilities.map((v, i) => (
+        <li key={i} className="mb-3">
+          <div className="font-medium text-yellow-400">{v.type}</div>
+          <div className="text-sm text-red-400">Severity: {v.severity}</div>
+          <div className="text-xs mt-1">{v.description}</div>
+          {v.code_snippet && (
+            <pre className="bg-slate-800 p-2 mt-1 rounded text-xs overflow-x-auto">
+              {v.code_snippet}
+            </pre>
+          )}
+        </li>
+      ))}
+    </ul>
+  </div>
+) : (
+  <div>
+    <h4 className="font-semibold mb-2">Vulnerabilities</h4>
+    <p className="text-sm text-slate-300">No vulnerabilities found</p>
+  </div>
+)}
+
     {/* RECOMMENDATIONS */}
     {Array.isArray(result.result.recommendations) && (
       <div>
