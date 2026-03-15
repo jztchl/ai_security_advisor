@@ -1,5 +1,8 @@
 import subprocess
 import json
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 def run_semgrep(filepath: str):
         result = subprocess.run(
             [
@@ -13,4 +16,6 @@ def run_semgrep(filepath: str):
         if result.returncode not in (0, 1):
             raise RuntimeError(result.stderr)
         result_text=json.loads(result.stdout)
-        return result_text["results"]
+        logger.info("Semgrep result generated")
+        return result_text.get("results", [])
+

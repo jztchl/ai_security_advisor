@@ -33,6 +33,7 @@ def process_uploaded_file(task_id: str) -> dict:
         # asyncio.set_event_loop(loop)
 
         try:
+            analysis_result = None
             semgrep_result = run_semgrep(filepath)
             analysis_result = analyze_code_security(code_content, language,task_id,filepath,semgrep_result)
             if analysis_result:

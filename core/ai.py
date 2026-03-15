@@ -12,7 +12,7 @@ filepath:str = None,semgrep_result=[],mode=None) -> Dict[str, Any]:
 
     model_providers={"gemini":gemini_generate_content,"mistral":generate_content_mistral}
     if semgrep_result:
-        semgrep_result_str = "\n".join(semgrep_result)
+        semgrep_result_str = "\n".join(str(semgrep_result))
     else:
         semgrep_result_str = "not found"
     """
