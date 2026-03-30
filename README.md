@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="logo.png" alt="Ghost Mesh Logo" width="200"/>
+</p>
 
 ---
 
